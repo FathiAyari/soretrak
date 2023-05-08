@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "23996585408",
+    "project_id": "soretrak-5af9e",
+    "storage_bucket": "soretrak-5af9e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:23996585408:android:4108915776a19028642425",
+        "android_client_info": {
+          "package_name": "com.example.soretrak"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "23996585408-29l4a6rrcsmr5seqbkngknvmdkib80ha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDA7bchdWxh_SAWfrLJmfKDroMvvpirC20"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "23996585408-29l4a6rrcsmr5seqbkngknvmdkib80ha.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
