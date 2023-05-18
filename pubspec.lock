@@ -206,6 +206,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_barcode_scanner:
+    dependency: "direct main"
+    description:
+      name: flutter_barcode_scanner
+      sha256: a4ba37daf9933f451a5e812c753ddd045d6354e4a3280342d895b07fecaab3fa
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
@@ -222,6 +230,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  flutter_plugin_android_lifecycle:
+    dependency: transitive
+    description:
+      name: flutter_plugin_android_lifecycle
+      sha256: "96af49aa6b57c10a312106ad6f71deed5a754029c24789bbf620ba784f0bd0b0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.14"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      sha256: cc4231579e3eae41ae166660df717f4bad1359c87f4a4322ad8ba1befeb3d2be
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -432,6 +456,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.4"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "5c4208b4dc0d55c3184d10d83ee0ded6212dc2b5e2ba17c5a0c0aab279128d21"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  qr_code_scanner:
+    dependency: "direct main"
+    description:
+      name: qr_code_scanner
+      sha256: f23b68d893505a424f0bd2e324ebea71ed88465d572d26bb8d2e78a4749591fd
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  qr_flutter:
+    dependency: "direct main"
+    description:
+      name: qr_flutter
+      sha256: c5c121c54cb6dd837b9b9d57eb7bc7ec6df4aee741032060c8833a678c80b87e
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -493,6 +541,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  unicons:
+    dependency: "direct main"
+    description:
+      name: unicons
+      sha256: dbfcf93ff4d4ea19b324113857e358e4882115ab85db04417a4ba1c72b17a670
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   vector_math:
     dependency: transitive
     description:
@@ -534,5 +590,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=2.19.0 <4.0.0"
-  flutter: ">=3.3.0"
+  dart: ">=2.19.0 <3.0.0"
+  flutter: ">=3.7.0"
