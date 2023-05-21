@@ -1,7 +1,7 @@
 class Request {
   String articleId;
   String ownerId;
-  String status;
+  int status;
   DateTime dateTime;
 
   Request({
@@ -27,7 +27,7 @@ class Request {
       articleId: json['articleId'],
       ownerId: json['ownerId'],
       status: json['status'],
-      dateTime: DateTime.parse(json['dateTime']),
+      dateTime: json['dateTime'].toDate(),
     );
   }
 }

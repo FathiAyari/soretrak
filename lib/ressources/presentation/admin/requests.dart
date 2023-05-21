@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:soretrak/ressources/dimensions/constants.dart';
-import 'package:soretrak/ressources/presentation/user/my_accepted_requests.dart';
-import 'package:soretrak/ressources/presentation/user/my_pending_requests.dart';
-import 'package:soretrak/ressources/presentation/user/my_refused_requests.dart';
+import 'package:soretrak/ressources/presentation/admin/accepted_request.dart';
+import 'package:soretrak/ressources/presentation/admin/pending_requests.dart';
+import 'package:soretrak/ressources/presentation/admin/refused_requests.dart';
 
-class MyRequests extends StatefulWidget {
-  const MyRequests({Key? key}) : super(key: key);
+class AllRequests extends StatefulWidget {
+  const AllRequests({Key? key}) : super(key: key);
 
   @override
-  State<MyRequests> createState() => _MyRequestsState();
+  State<AllRequests> createState() => _AllRequestsState();
 }
 
-class _MyRequestsState extends State<MyRequests> with TickerProviderStateMixin {
+class _AllRequestsState extends State<AllRequests> with TickerProviderStateMixin {
   late TabController _tabController;
   void initState() {
     super.initState();
@@ -63,7 +63,7 @@ class _MyRequestsState extends State<MyRequests> with TickerProviderStateMixin {
               child: TabBarView(
             physics: const NeverScrollableScrollPhysics(),
             controller: _tabController,
-            children: [MyPendingRequests(), MyRefusedRequests(), MyAcceptedRequest()],
+            children: [PendingRequests(), RefusedRequest(), AcceptedRequest()],
           ))
         ],
       ),

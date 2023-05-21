@@ -95,15 +95,15 @@ class _LoginScreenState extends State<SignInScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                          margin: EdgeInsets.only(top: 50),
-                          child: Image(
-                            image: AssetImage('assets/images/logo.png'),
-                            height: 100,
-                            width: 100,
-                          ),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Container(
+                              color: Colors.red,
+                              child: Image.asset(
+                                'assets/images/logo.png',
+                                height: 100,
+                              )),
                         ),
-                        // SizedBox(height: 10),
                         Container(
                           margin: EdgeInsets.only(top: 20),
                           child: Text(

@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:resservation/presentation/admin/admin_historic.dart';
-import 'package:resservation/presentation/admin/admin_home.dart';
-import 'package:resservation/presentation/admin/admin_meals.dart';
+import 'package:soretrak/ressources/presentation/admin/admin_home.dart';
+import 'package:soretrak/ressources/presentation/admin/cateogeries.dart';
+import 'package:soretrak/ressources/presentation/admin/requests.dart';
 import 'package:unicons/unicons.dart';
 
 class HomePageAdmin extends StatefulWidget {
@@ -15,11 +15,7 @@ class HomePageAdmin extends StatefulWidget {
 }
 
 class _HomePageAdminState extends State<HomePageAdmin> {
-  List pages = [
-    AdminHome(),
-    AdminMeals(),
-    AdminHistoric(),
-  ];
+  List pages = [AdminHome(), AllRequests(), Cateogeries()];
   int index = 0;
   Future<bool> avoidReturnButton() async {
     showDialog(
@@ -79,11 +75,11 @@ class _HomePageAdminState extends State<HomePageAdmin> {
               ),
               BottomNavigationBarItem(
                 icon: Icon(UniconsLine.bell),
-                label: 'Repas',
+                label: 'Demandes',
               ),
               BottomNavigationBarItem(
-                icon: new Icon(Icons.history),
-                label: 'Historique',
+                icon: Icon(UniconsLine.clipboard_alt),
+                label: 'Cateogeries',
               ),
             ],
           ),

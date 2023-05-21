@@ -2,16 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:resservation/models/Users.dart';
-import 'package:resservation/presentation/admin/add_tickets.dart';
-import 'package:resservation/presentation/widgets/icon_button_splash/view/icon_button_splash.dart';
-import 'package:resservation/ressources/dimensions/constants.dart';
+import 'package:soretrak/models/article.dart';
+import 'package:soretrak/ressources/dimensions/constants.dart';
+import 'package:soretrak/ressources/presentation/admin/add_article.dart';
+import 'package:soretrak/ressources/presentation/admin/update_article.dart';
+import 'package:soretrak/ressources/presentation/widgets/icon_button_splash/view/icon_button_splash.dart';
+import 'package:soretrak/services/AuthServices.dart';
 import 'package:unicons/unicons.dart';
-
-import '../../services/AuthServices.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({Key? key}) : super(key: key);
@@ -23,22 +24,16 @@ class AdminHome extends StatefulWidget {
 class _AdminHomeState extends State<AdminHome> {
   var user = GetStorage().read("user");
   QRViewController? controller;
+
   Future<void> scanQR() async {
     String barcodeScanRes;
     try {
       barcodeScanRes = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
-      var userData = await FirebaseFirestore.instance.collection('users').doc(barcodeScanRes).get();
+      var userData = await FirebaseFirestore.instance.collection('articles').doc(barcodeScanRes).get();
 
       if (userData.exists) {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AddTickets(
-                      cusers: Cusers.fromJson(userData.data() as Map<String, dynamic>),
-                    )));
-      } else {
         final snackBar = SnackBar(
-          content: Text("Pas d'etudian avec ce Qr code"),
+          content: Text("Il ya deja un article avec cet code QR"),
           backgroundColor: (Colors.red),
           action: SnackBarAction(
             label: 'fermer',
@@ -47,6 +42,8 @@ class _AdminHomeState extends State<AdminHome> {
           ),
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      } else if (barcodeScanRes != "-1") {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => AddArticle(code: barcodeScanRes)));
       }
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
@@ -128,48 +125,114 @@ class _AdminHomeState extends State<AdminHome> {
               ),
             ),
             StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('users').where("role", isEqualTo: "user").snapshots(),
+                stream: FirebaseFirestore.instance.collection('articles').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    List<Cusers> users = [];
+                    List<Article> res = [];
                     for (var data in snapshot.data!.docs.toList()) {
-                      users.add(Cusers.fromJson(data.data() as Map<String, dynamic>));
+                      res.add(Article.fromJson(data.data() as Map<String, dynamic>));
                     }
-                    if (users.isNotEmpty) {
+                    if (res.isNotEmpty) {
                       return Expanded(
                           child: ListView.builder(
-                        itemCount: users.length,
+                        itemCount: res.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    UniconsLine.user,
-                                    color: Colors.white,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        "Nom et prénom : ${users[index].name} ${users[index].last_name}",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      Text(
-                                        "Nombre de tickets :${users[index].tickets!.length} ",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                          return Slidable(
+                            key: const ValueKey(0),
+                            startActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onPressed: null,
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.cancel,
+                                ),
+                                SlidableAction(
+                                  onPressed: (ctx) async {
+                                    var requests = await FirebaseFirestore.instance
+                                        .collection('requests')
+                                        .where("articleId", isEqualTo: res[index].id)
+                                        .get();
+
+                                    for (var data in requests.docs.toList()) {
+                                      data.reference.delete();
+                                    }
+                                    snapshot.data!.docs[index].reference.delete();
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.delete,
+                                ),
+                              ],
+                            ),
+                            endActionPane: ActionPane(
+                              motion: const ScrollMotion(),
+                              children: [
+                                SlidableAction(
+                                  onPressed: (ctx) async {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) => UpdateArticle(data: snapshot.data!.docs[index])));
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.edit,
+                                ),
+                                SlidableAction(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onPressed: null,
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.cancel,
+                                ),
+                              ],
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              height: Constants.screenHeight * 0.15,
+                              decoration:
+                                  BoxDecoration(color: Colors.indigo.withOpacity(0.5), borderRadius: BorderRadius.circular(5)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Nom d'article : ${res[index].name}",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      "Marque d'article :${res[index].marque} ",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      "Quantité d'article :${res[index].quantity} ",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    StreamBuilder(
+                                        stream: FirebaseFirestore.instance
+                                            .collection('cateogeries')
+                                            .doc(res[index].idCat)
+                                            .snapshots(),
+                                        builder: (BuildContext context,
+                                            AsyncSnapshot<DocumentSnapshot<Map<String, dynamic>>> userSnapshot) {
+                                          if (userSnapshot.hasData) {
+                                            return Text(
+                                              "Categorie d'article :${userSnapshot.data!.get("name")} ",
+                                              style: TextStyle(color: Colors.white),
+                                            );
+                                          } else {
+                                            return Container();
+                                          }
+                                        })
+                                  ],
+                                ),
                               ),
                             ),
-                            width: double.infinity,
-                            height: Constants.screenHeight * 0.1,
-                            decoration:
-                                BoxDecoration(color: Colors.indigo.withOpacity(0.5), borderRadius: BorderRadius.circular(5)),
                           );
                         },
                       ));
@@ -183,7 +246,7 @@ class _AdminHomeState extends State<AdminHome> {
                               Lottie.asset("assets/lotties/error.json", repeat: false, height: Constants.screenHeight * 0.1),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text("Pas des étudiants pour le moment "),
+                                child: Text("Pas des articles pour le moment "),
                               ),
                             ],
                           ),

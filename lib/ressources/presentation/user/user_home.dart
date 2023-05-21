@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:lottie/lottie.dart';
@@ -20,59 +18,6 @@ class HomeUser extends StatefulWidget {
 
 class _HomeUserState extends State<HomeUser> {
   var user = GetStorage().read("user");
-  Future<void> scanQR() async {
-    String barcodeScanRes;
-    try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode('#ff6666', 'Cancel', true, ScanMode.QR);
-      var userData = await FirebaseFirestore.instance.collection('users').doc(barcodeScanRes).get();
-
-      if (userData.exists) {
-        var us = await FirebaseFirestore.instance.collection("users").doc(user['uid']).get();
-        List myOldTickets = us.get('tickets');
-        var frnd = await FirebaseFirestore.instance.collection("users").doc(userData.id).get();
-        List friendTickets = frnd.get('tickets');
-
-        friendTickets.add(myOldTickets.last);
-        FirebaseFirestore.instance.collection('users').doc(userData.id).update({"tickets": friendTickets});
-        FirebaseFirestore.instance
-            .collection("users")
-            .doc(userData.id)
-            .collection("historics")
-            .add({"dateTime": DateTime.now(), "subject": "Vous avez recu une ticket de ${user['name']} ${user['last_name']}"});
-
-        myOldTickets.removeLast();
-        FirebaseFirestore.instance.collection('users').doc(user['uid']).update({"tickets": myOldTickets});
-        FirebaseFirestore.instance.collection("users").doc(user['uid']).collection("historics").add({
-          "dateTime": DateTime.now(),
-          "subject": "Vous avez envoyé une ticket a ${userData.get('name')} ${userData.get('last_name')}"
-        });
-
-        final snackBar = SnackBar(
-          content: Text("Ticket envoyé"),
-          backgroundColor: (Colors.green),
-          action: SnackBarAction(
-            label: 'fermer',
-            textColor: Colors.white,
-            onPressed: () {},
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      } else {
-        final snackBar = SnackBar(
-          content: Text("Pas d'etudian avec ce Qr code"),
-          backgroundColor: (Colors.red),
-          action: SnackBarAction(
-            label: 'fermer',
-            textColor: Colors.white,
-            onPressed: () {},
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }
-    } on PlatformException {
-      barcodeScanRes = 'Failed to get platform version.';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,12 +82,12 @@ class _HomeUserState extends State<HomeUser> {
               ),
             ),
             StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('articles').snapshots(),
+                stream: FirebaseFirestore.instance.collection('articles').where("quantity", isNotEqualTo: 0).snapshots(),
                 builder: (BuildContext context, snapshot) {
                   if (snapshot.hasData) {
                     List<Article> articles = [];
                     for (var data in snapshot.data!.docs) {
-                      Article.fromJson(data.data() as Map<String, dynamic>);
+                      articles.add(Article.fromJson(data.data() as Map<String, dynamic>));
                     }
                     if (articles.isNotEmpty) {
                       return Expanded(
@@ -166,12 +111,27 @@ class _HomeUserState extends State<HomeUser> {
                                   ),
                                   SlidableAction(
                                     onPressed: (ctx) async {
-                                      scanQR();
+                                      FirebaseFirestore.instance.collection("requests").add({
+                                        "articleId": articles[index].id,
+                                        "ownerId": user['uid'],
+                                        "status": 0,
+                                        "dateTime": DateTime.now(),
+                                      });
+                                      final snackBar = SnackBar(
+                                        content: Text("Demande est en cours de traitement"),
+                                        backgroundColor: (Colors.green),
+                                        action: SnackBarAction(
+                                          label: 'fermer',
+                                          textColor: Colors.white,
+                                          onPressed: () {},
+                                        ),
+                                      );
+                                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
                                     },
                                     borderRadius: BorderRadius.circular(10),
                                     backgroundColor: Colors.indigo.withOpacity(0.5),
                                     foregroundColor: Colors.white,
-                                    icon: Icons.share,
+                                    icon: Icons.add,
                                     label: 'Demander',
                                   ),
                                 ],
@@ -194,7 +154,15 @@ class _HomeUserState extends State<HomeUser> {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            "Code de ticket : ",
+                                            "Nom de l'article :${articles[index].name} ",
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                          Text(
+                                            "Marque de l'article :${articles[index].marque} ",
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                          Text(
+                                            "Quantité disponible de l'article :${articles[index].quantity} ",
                                             style: TextStyle(color: Colors.white),
                                           ),
                                         ],
@@ -217,7 +185,7 @@ class _HomeUserState extends State<HomeUser> {
                               Lottie.asset("assets/lotties/error.json", repeat: false, height: Constants.screenHeight * 0.1),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text("Pas des tickets pour le moment "),
+                                child: Text("Pas des articles pour le moment "),
                               ),
                             ],
                           ),

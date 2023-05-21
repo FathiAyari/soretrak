@@ -32,7 +32,6 @@ class Cusers {
       "email": email,
       "role": role,
       "password": password,
-      "tickets": [],
     };
   }
 }
